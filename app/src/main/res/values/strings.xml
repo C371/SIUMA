@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">SIUMA</string>
-    <string name="title_activity_setelahditekan">setelahditekan</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+    <string name="title_simua">SIMUA</string>
+    <string name="subtitle_uns">Universitas Sebelas Maret</string>
+    <string name="btn_masuk">Masuk</string>
+    <string name="welcome_message">Selamat Datang di SIMUA</string>
+    <string name="welcome_description">Sistem Informasi Mahasiswa Urusan Akademis Universitas Sebelas Maret</string>
+    <string name="section_explore">Jelajahi</string>
+    <string name="explore_description">Temukan program impian dan informasi pendaftaran UNS di sini.</string>
+    <string name="btn_fakultas">Fakultas dari UNS</string>
+    <string name="btn_prodi">Program Studi</string>
+    <string name="btn_pendaftaran">Pendaftaran</string>
 </resources>
