@@ -1,19 +1,25 @@
 package com.example.siuma
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,17 +34,17 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SIUMATheme {
-                var showPlaceholder by remember { mutableStateOf(false) }
+                var showHomeScreen by remember { mutableStateOf(false) }
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    if (showPlaceholder) {
-                        PlaceholderScreen(
-                            onBack = { showPlaceholder = false },
+                    if (showHomeScreen) {
+                        HomeScreen(
+                            onLogout = { showHomeScreen = false },
                             modifier = Modifier.padding(innerPadding)
                         )
                     } else {
                         LoginScreen(
-                            onLoginClick = { showPlaceholder = true },
+                            onLoginClick = { showHomeScreen = true },
                             modifier = Modifier.padding(innerPadding)
                         )
                     }
@@ -57,16 +63,14 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Logo
         Image(
-            painter = painterResource(id = R.drawable.logo_uns_biru),
+            painter = painterResource(id = R.drawable.logosimuawelcome),
             contentDescription = "Logo UNS",
             modifier = Modifier.size(150.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // App Name
         Text(
             text = "SIMUA",
             fontSize = 58.sp,
@@ -74,7 +78,6 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
             color = Color.Black
         )
 
-        // Subtitle
         Text(
             text = "SISTEM INFORMASI MAHASISWA URUSAN AKADEMIS\nUNIVERSITAS SEBELAS MARET",
             fontSize = 12.sp,
@@ -86,7 +89,6 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(64.dp))
 
-        // Sign in method text
         Text(
             text = "Choose your sign in method",
             fontSize = 16.sp,
@@ -101,7 +103,6 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // SSO UNS Button
         LoginButton(
             text = "SSO UNS",
             iconRes = R.drawable.logo_uns_only_black_sso,
@@ -110,7 +111,6 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Google Button
         LoginButton(
             text = "Google",
             iconRes = R.drawable.google_logo,
@@ -119,7 +119,6 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(48.dp))
 
-        // Footer
         Text(
             text = "Dengan login dan menggunakan aplikasi, Anda menyetujui kebijakan privasi SIMUA",
             fontSize = 11.sp,
@@ -163,25 +162,154 @@ fun LoginButton(text: String, iconRes: Int, onClick: () -> Unit) {
 }
 
 @Composable
-fun PlaceholderScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+fun HomeScreen(onLogout: () -> Unit, modifier: Modifier = Modifier) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color(0xFFF8F9FA))
+            .verticalScroll(scrollState)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "Halaman Kedua (Placeholder)", fontSize = 20.sp)
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onBack) {
-                Text("Kembali")
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF0B194C))
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = Color.Transparent,
+                modifier = Modifier.size(50.dp)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logosimua),
+                    contentDescription = "Logo",
+                    modifier = Modifier.padding(6.dp)
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 12.dp)
+            ) {
+                Text(
+                    text = "SIMUA",
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Universitas Sebelas Maret",
+                    color = Color(0xFFFFC107),
+                    fontSize = 12.sp
+                )
+            }
+
+            Button(
+                onClick = onLogout,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("Keluar", color = Color.Black, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        Column(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp)
+        ) {
+            Text(
+                text = "Selamat Datang di SIMUA",
+                color = Color(0xFF0B194C),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Gerbang Edukasi dan Teknologi Andalan Universitas Sebelas Maret",
+                color = Color(0xFF757575),
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+
+        val context = LocalContext.current
+
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFF0B194C)),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 32.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Text(
+                    text = "Jelajahi",
+                    color = Color.White,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Temukan program impian dan informasi pendaftaran UNS di sini.",
+                    color = Color(0xFFCCCCCC),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
+                )
+
+                ExploreButton(text = "Fakultas dari UNS", iconRes = R.drawable.simuafak) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://uns.ac.id/id/informasi-akademik/fakultas"))
+                    context.startActivity(intent)
+                }
+
+                ExploreButton(text = "Program Studi", iconRes = R.drawable.simuaprodi) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://uns.ac.id/id/informasi-akademik/daftar-program-studi"))
+                    context.startActivity(intent)
+                }
+
+                ExploreButton(text = "Pendaftaran", iconRes = R.drawable.simuapend, modifier = Modifier.padding(bottom = 0.dp)) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://spmb.uns.ac.id"))
+                    context.startActivity(intent)
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun LoginPreview() {
-    SIUMATheme {
-        LoginScreen(onLoginClick = {})
+fun ExploreButton(text: String, iconRes: Int, modifier: Modifier = Modifier.padding(bottom = 12.dp), onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(55.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White,
+            contentColor = Color(0xFF0B194C)
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = text,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp
+            )
+        }
     }
 }
