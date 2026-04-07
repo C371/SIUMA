@@ -281,17 +281,29 @@ fun HomeScreen(onLogout: () -> Unit, modifier: Modifier = Modifier) {
                     modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
                 )
 
-                ExploreButton(text = "Fakultas dari UNS", iconRes = R.drawable.simuafak) {
+                ExploreButton(
+                    text = "Fakultas dari UNS",
+                    iconRes = R.drawable.simuafak,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {
                     val intent = Intent(Intent.ACTION_VIEW, "https://uns.ac.id/id/informasi-akademik/fakultas".toUri())
                     context.startActivity(intent)
                 }
 
-                ExploreButton(text = "Program Studi", iconRes = R.drawable.simuaprodi) {
+                ExploreButton(
+                    text = "Program Studi",
+                    iconRes = R.drawable.simuaprodi,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                ) {
                     val intent = Intent(Intent.ACTION_VIEW, "https://uns.ac.id/id/informasi-akademik/daftar-program-studi".toUri())
                     context.startActivity(intent)
                 }
 
-                ExploreButton(text = "Pendaftaran", iconRes = R.drawable.simuapend, modifier = Modifier.padding(bottom = 0.dp)) {
+                ExploreButton(
+                    text = "Pendaftaran",
+                    iconRes = R.drawable.simuapend,
+                    modifier = Modifier.padding(bottom = 0.dp)
+                ) {
                     val intent = Intent(Intent.ACTION_VIEW, "https://spmb.uns.ac.id".toUri())
                     context.startActivity(intent)
                 }
@@ -301,7 +313,12 @@ fun HomeScreen(onLogout: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ExploreButton(text: String, iconRes: Int, modifier: Modifier = Modifier.padding(bottom = 12.dp), onClick: () -> Unit) {
+fun ExploreButton(
+    text: String,
+    iconRes: Int,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
         modifier = modifier
