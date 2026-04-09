@@ -13,7 +13,7 @@
         <activity
             android:name=".setelahditekan"
             android:exported="false"
-            android:label="@string/title_activity_setelahditekan"
+            android:label="@string/activity_setelahditekan"
             android:theme="@style/Theme.SIUMA.NoActionBar" />
         <activity
             android:name=".MainActivity"
