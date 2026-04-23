@@ -27,10 +27,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.example.siuma.R
+import com.example.siuma.ui.navigation.LocalBackStack
+import com.example.siuma.ui.navigation.Route
 
 @Composable
-fun MainScreen(onLogout: () -> Unit) {
-    var currentScreen by remember { mutableStateOf("Beranda") }
+fun MainScreen() {
+    val backStack = LocalBackStack.current
+    var currentTab by remember { mutableStateOf("Beranda") }
 
     Scaffold(
         bottomBar = {
@@ -39,20 +42,20 @@ fun MainScreen(onLogout: () -> Unit) {
                 tonalElevation = 8.dp
             ) {
                 NavigationBarItem(
-                    selected = currentScreen == "Beranda" || (currentScreen != "Jelajahi" && currentScreen != "Profil"),
-                    onClick = { currentScreen = "Beranda" },
+                    selected = currentTab == "Beranda",
+                    onClick = { currentTab = "Beranda" },
                     icon = { Icon(Icons.Default.Home, contentDescription = "Halaman Awal") },
                     label = { Text("Halaman Awal") }
                 )
                 NavigationBarItem(
-                    selected = currentScreen == "Jelajahi",
-                    onClick = { currentScreen = "Jelajahi" },
+                    selected = currentTab == "Jelajahi",
+                    onClick = { currentTab = "Jelajahi" },
                     icon = { Icon(Icons.Default.Search, contentDescription = "Jelajahi") },
                     label = { Text("Jelajahi") }
                 )
                 NavigationBarItem(
-                    selected = currentScreen == "Profil",
-                    onClick = { currentScreen = "Profil" },
+                    selected = currentTab == "Profil",
+                    onClick = { currentTab = "Profil" },
                     icon = { Icon(Icons.Default.Person, contentDescription = "Profil Saya") },
                     label = { Text("Profil Saya") }
                 )
@@ -60,11 +63,26 @@ fun MainScreen(onLogout: () -> Unit) {
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            when (currentScreen) {
-                "Beranda" -> BerandaScreen(onLogout, onNavigate = { currentScreen = it })
+            when (currentTab) {
+                "Beranda" -> BerandaScreen(
+                    onLogout = { 
+                        backStack.clear()
+                        backStack.add(Route.Login)
+                    }, 
+                    onNavigate = { screenTitle ->
+                        val route = when(screenTitle) {
+                            "Jadwal" -> Route.Jadwal
+                            "KRS" -> Route.KRS
+                            "KHS" -> Route.KHS
+                            "Presensi" -> Route.Presensi
+                            "Pembayaran" -> Route.Pembayaran
+                            else -> Route.Detail(screenTitle)
+                        }
+                        backStack.add(route)
+                    }
+                )
                 "Jelajahi" -> JelajahiScreen()
                 "Profil" -> ProfilScreen()
-                else -> DetailScreen(title = currentScreen, onBack = { currentScreen = "Beranda" })
             }
         }
     }
@@ -165,7 +183,6 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Menggunakan Row dengan weight agar sejajar sempurna
                 menuItems.chunked(3).forEach { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),

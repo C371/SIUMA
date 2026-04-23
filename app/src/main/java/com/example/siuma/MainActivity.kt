@@ -18,7 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.siuma.ui.screens.MainScreen
+import com.example.siuma.ui.navigation.LocalBackStack
+import com.example.siuma.ui.navigation.NavDisplay
+import com.example.siuma.ui.navigation.Route
+import com.example.siuma.ui.screens.*
 import com.example.siuma.ui.theme.SIUMATheme
 
 class MainActivity : ComponentActivity() {
@@ -26,13 +29,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            SIUMATheme {
-                var showHomeScreen by remember { mutableStateOf(false) }
-
-                if (showHomeScreen) {
-                    MainScreen(onLogout = { showHomeScreen = false })
-                } else {
-                    LoginScreen(onLoginClick = { showHomeScreen = true })
+            val backStack = remember { mutableStateListOf<Route>(Route.Login) }
+            
+            CompositionLocalProvider(LocalBackStack provides backStack) {
+                SIUMATheme {
+                    NavDisplay(backStack = backStack) { route ->
+                        when (route) {
+                            is Route.Login -> LoginScreen()
+                            is Route.SSOLogin -> SSOLoginScreen()
+                            is Route.GoogleLogin -> GoogleLoginScreen()
+                            is Route.Main -> MainScreen()
+                            is Route.Jadwal -> JadwalScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.KRS -> KRSScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.KHS -> KHSScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Presensi -> PresensiScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Pembayaran -> PembayaranScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Detail -> DetailScreen(title = route.title, onBack = { backStack.removeLastOrNull() })
+                        }
+                    }
                 }
             }
         }
@@ -40,7 +54,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
+fun LoginScreen(modifier: Modifier = Modifier) {
+    val backStack = LocalBackStack.current
+    
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -91,7 +107,7 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
         LoginButton(
             text = "SSO UNS",
             iconRes = R.drawable.logo_uns_only_black_sso,
-            onClick = onLoginClick
+            onClick = { backStack.add(Route.SSOLogin) }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -99,7 +115,7 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
         LoginButton(
             text = "Google",
             iconRes = R.drawable.google_logo,
-            onClick = onLoginClick
+            onClick = { backStack.add(Route.GoogleLogin) }
         )
 
         Spacer(modifier = Modifier.height(48.dp))
@@ -111,6 +127,100 @@ fun LoginScreen(onLoginClick: () -> Unit, modifier: Modifier = Modifier) {
             color = Color.Gray,
             modifier = Modifier.padding(horizontal = 40.dp)
         )
+    }
+}
+
+@Composable
+fun SSOLoginScreen() {
+    val backStack = LocalBackStack.current
+    var nim by remember { mutableStateOf("") }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo_uns_only_black_sso),
+            contentDescription = "SSO UNS",
+            modifier = Modifier.size(80.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Login SSO UNS", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        OutlinedTextField(
+            value = nim,
+            onValueChange = { nim = it },
+            label = { Text("NIM / Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Button(
+            onClick = {
+                if (nim.isNotBlank()) {
+                    backStack.clear()
+                    backStack.add(Route.Main)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Masuk")
+        }
+        TextButton(onClick = { backStack.removeLastOrNull() }) {
+            Text("Batal")
+        }
+    }
+}
+
+@Composable
+fun GoogleLoginScreen() {
+    val backStack = LocalBackStack.current
+    var email by remember { mutableStateOf("") }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.google_logo),
+            contentDescription = "Google",
+            modifier = Modifier.size(80.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text("Login dengan Google", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Button(
+            onClick = {
+                if (email.isNotBlank()) {
+                    backStack.clear()
+                    backStack.add(Route.Main)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Lanjutkan")
+        }
+        TextButton(onClick = { backStack.removeLastOrNull() }) {
+            Text("Batal")
+        }
     }
 }
 
@@ -145,4 +255,3 @@ fun LoginButton(text: String, iconRes: Int, onClick: () -> Unit) {
         }
     }
 }
-
