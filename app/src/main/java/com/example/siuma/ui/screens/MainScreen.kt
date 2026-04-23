@@ -3,6 +3,7 @@ package com.example.siuma.ui.screens
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -29,7 +30,7 @@ import com.example.siuma.R
 
 @Composable
 fun MainScreen(onLogout: () -> Unit) {
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var currentScreen by remember { mutableStateOf("Beranda") }
 
     Scaffold(
         bottomBar = {
@@ -38,20 +39,20 @@ fun MainScreen(onLogout: () -> Unit) {
                 tonalElevation = 8.dp
             ) {
                 NavigationBarItem(
-                    selected = selectedTab == 0,
-                    onClick = { selectedTab = 0 },
+                    selected = currentScreen == "Beranda" || (currentScreen != "Jelajahi" && currentScreen != "Profil"),
+                    onClick = { currentScreen = "Beranda" },
                     icon = { Icon(Icons.Default.Home, contentDescription = "Halaman Awal") },
                     label = { Text("Halaman Awal") }
                 )
                 NavigationBarItem(
-                    selected = selectedTab == 1,
-                    onClick = { selectedTab = 1 },
+                    selected = currentScreen == "Jelajahi",
+                    onClick = { currentScreen = "Jelajahi" },
                     icon = { Icon(Icons.Default.Search, contentDescription = "Jelajahi") },
                     label = { Text("Jelajahi") }
                 )
                 NavigationBarItem(
-                    selected = selectedTab == 2,
-                    onClick = { selectedTab = 2 },
+                    selected = currentScreen == "Profil",
+                    onClick = { currentScreen = "Profil" },
                     icon = { Icon(Icons.Default.Person, contentDescription = "Profil Saya") },
                     label = { Text("Profil Saya") }
                 )
@@ -59,17 +60,18 @@ fun MainScreen(onLogout: () -> Unit) {
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            when (selectedTab) {
-                0 -> BerandaScreen(onLogout)
-                1 -> JelajahiScreen()
-                2 -> ProfilScreen()
+            when (currentScreen) {
+                "Beranda" -> BerandaScreen(onLogout, onNavigate = { currentScreen = it })
+                "Jelajahi" -> JelajahiScreen()
+                "Profil" -> ProfilScreen()
+                else -> DetailScreen(title = currentScreen, onBack = { currentScreen = "Beranda" })
             }
         }
     }
 }
 
 @Composable
-fun BerandaScreen(onLogout: () -> Unit) {
+fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
@@ -127,10 +129,10 @@ fun BerandaScreen(onLogout: () -> Unit) {
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {
-                    Text("Daffa Dewanda Putra", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text("NIM: L0124094", color = Color(0xFFFFC107), fontSize = 13.sp)
-                    Text("Program Studi S-1 Informatika", color = Color.White, fontSize = 12.sp)
-                    Text("Fakultas Teknologi Informasi dan Sains Data (FATISDA)", color = Color.White, fontSize = 11.sp)
+                    Text("John Doe", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("NIM: (Placeholder)", color = Color(0xFFFFC107), fontSize = 13.sp)
+                    Text("Program Studi (Placeholder)", color = Color.White, fontSize = 12.sp)
+                    Text("Fakultas (Placeholder)", color = Color.White, fontSize = 11.sp)
                     Text("Status: Aktif", color = Color.Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
@@ -171,7 +173,7 @@ fun BerandaScreen(onLogout: () -> Unit) {
                     ) {
                         rowItems.forEach { item ->
                             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                MenuIcon(item)
+                                MenuIcon(item, onClick = { onNavigate(item.title) })
                             }
                         }
                     }
@@ -212,8 +214,14 @@ fun BerandaScreen(onLogout: () -> Unit) {
 data class MenuItem(val title: String, val icon: ImageVector)
 
 @Composable
-fun MenuIcon(item: MenuItem) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+fun MenuIcon(item: MenuItem, onClick: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(8.dp)
+    ) {
         Box(
             modifier = Modifier
                 .size(50.dp)
@@ -283,5 +291,44 @@ fun JelajahiScreen() {
 fun ProfilScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("Halaman Profil Saya (Belum diimplementasikan)")
+    }
+}
+
+@Composable
+fun DetailScreen(title: String, onBack: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Halaman $title",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF0B194C)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(2.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(32.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Konten untuk fitur $title sedang dalam pengembangan.",
+                    color = Color.Gray
+                )
+            }
+        }
     }
 }
