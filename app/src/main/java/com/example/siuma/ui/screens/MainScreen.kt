@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
@@ -35,7 +34,7 @@ import com.example.siuma.ui.navigation.LocalBackStack
 import com.example.siuma.ui.navigation.Route
 
 @Composable
-fun MainScreen() {
+fun MainScreen(isDosen: Boolean = false) {
     val backStack = LocalBackStack.current
     var currentTab by remember { mutableStateOf("Beranda") }
 
@@ -55,7 +54,7 @@ fun MainScreen() {
                     selected = currentTab == "Jelajahi",
                     onClick = { currentTab = "Jelajahi" },
                     icon = { Icon(Icons.Default.Search, contentDescription = "Jelajahi") },
-                    label = { Text("Jelajahi") }
+                    label = { Text("Umpan") }
                 )
                 NavigationBarItem(
                     selected = currentTab == "Profil",
@@ -69,6 +68,7 @@ fun MainScreen() {
         Box(modifier = Modifier.padding(innerPadding)) {
             when (currentTab) {
                 "Beranda" -> BerandaScreen(
+                    isDosen = isDosen,
                     onLogout = { 
                         backStack.clear()
                         backStack.add(Route.Login)
@@ -78,8 +78,15 @@ fun MainScreen() {
                             "Jadwal" -> Route.Jadwal
                             "KRS" -> Route.KRS
                             "KHS" -> Route.KHS
+                            "Kelas" -> Route.Kelas
+                            "Mahasiswa" -> Route.Mahasiswa
                             "Presensi" -> Route.Presensi
                             "Pembayaran" -> Route.Pembayaran
+                            "Penelitian" -> Route.Penelitian
+                            "Perpustakaan" -> Route.Perpustakaan
+                            "SIAKAD" -> Route.SIAKAD
+                            "Prestasi" -> Route.Prestasi
+                            "Berita" -> Route.Berita
                             else -> Route.Detail(screenTitle)
                         }
                         backStack.add(route)
@@ -94,7 +101,7 @@ fun MainScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
+fun BerandaScreen(isDosen: Boolean, onLogout: () -> Unit, onNavigate: (String) -> Unit) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(
@@ -125,7 +132,7 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
                         )
                     }
                     Text(
-                        "Kelas Mendatang",
+                        if (isDosen) "Jadwal Mengajar" else "Kelas Mendatang",
                         modifier = Modifier.padding(bottom = 16.dp),
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
@@ -148,17 +155,28 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
                         "B4.05",
                         "B4.11"
                     )
-                    val dosen = listOf(
+                    val dosenList = listOf(
                         "Arif Rohmadi S.Kom., M.Cs",
                         "Akhmad Syaifuddin S.Si., M.Cs.",
                         "Bambang Widoyono S.T., M.T.I.",
                         "Herdito Ibnu Dewangkoro M.Kom.",
                         "HERI PRASETYO S.Kom, M.Sc.Eng., Ph"
                     )
+
+                    val semester = listOf(
+                        "Semester 1",
+                        "Semester 2",
+                        "Semester 3",
+                        "Semester 4",
+                        "Semester 5",
+                        "Semester 6",
+                        "Semester 7",
+                        "Semester 8"
+                    )
                     
                     KelasMendatangItem(
                         title = subjects[index % subjects.size],
-                        subtitle = "1201322042${7 + (index % 4)} - ${dosen[index % dosen.size]}",
+                        subtitle = if (isDosen) "Informatika - Semester ${semester[index % semester.size]}" else "1201322042${7 + (index % 4)} - ${dosenList[index % dosenList.size]}",
                         room = rooms[index % rooms.size]
                     )
                 }
@@ -225,10 +243,10 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text("John Doe", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("NIM: (Placeholder)", color = Color(0xFFFFC107), fontSize = 13.sp)
-                        Text("Program Studi (Placeholder)", color = Color.White, fontSize = 12.sp)
-                        Text("Fakultas (Placeholder)", color = Color.White, fontSize = 11.sp)
+                        Text(if (isDosen) "John SIMUA Ph.D" else "John Doe", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(if (isDosen) "NIP: (PLaceholder)" else "NIM: (Placeholder)", color = Color(0xFFFFC107), fontSize = 13.sp)
+                        Text("Program Studi (PlaceGolder))", color = Color.White, fontSize = 12.sp)
+                        Text("Fakultas Teknologi Informasi dan Data", color = Color.White, fontSize = 11.sp)
                         Text("Status: Aktif", color = Color.Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
@@ -243,17 +261,31 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
                 elevation = CardDefaults.cardElevation(2.dp),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                val menuItems = listOf(
-                    MenuItem("Jadwal", Icons.Default.DateRange),
-                    MenuItem("KRS", Icons.AutoMirrored.Filled.Assignment),
-                    MenuItem("KHS", Icons.Default.Description),
-                    MenuItem("Presensi", Icons.AutoMirrored.Filled.FactCheck),
-                    MenuItem("Pembayaran", Icons.Default.Payments),
-                    MenuItem("Perpustakaan", Icons.AutoMirrored.Filled.LibraryBooks),
-                    MenuItem("SIAKAD", Icons.Default.School),
-                    MenuItem("Prestasi", Icons.Default.EmojiEvents),
-                    MenuItem("Berita", Icons.Default.Newspaper)
-                )
+                val menuItems = if (isDosen) {
+                    listOf(
+                        MenuItem("Jadwal", Icons.Default.DateRange),
+                        MenuItem("Kelas", Icons.Default.School),
+                        MenuItem("Mahasiswa", Icons.Default.Groups),
+                        MenuItem("Presensi", Icons.AutoMirrored.Filled.FactCheck),
+                        MenuItem("Penelitian", Icons.Default.Science),
+                        MenuItem("Perpustakaan", Icons.AutoMirrored.Filled.LibraryBooks),
+                        MenuItem("SIAKAD", Icons.Default.School),
+                        MenuItem("Prestasi", Icons.Default.EmojiEvents),
+                        MenuItem("Berita", Icons.Default.Newspaper)
+                    )
+                } else {
+                    listOf(
+                        MenuItem("Jadwal", Icons.Default.DateRange),
+                        MenuItem("KRS", Icons.AutoMirrored.Filled.Assignment),
+                        MenuItem("KHS", Icons.Default.Description),
+                        MenuItem("Presensi", Icons.AutoMirrored.Filled.FactCheck),
+                        MenuItem("Pembayaran", Icons.Default.Payments),
+                        MenuItem("Perpustakaan", Icons.AutoMirrored.Filled.LibraryBooks),
+                        MenuItem("SIAKAD", Icons.Default.School),
+                        MenuItem("Prestasi", Icons.Default.EmojiEvents),
+                        MenuItem("Berita", Icons.Default.Newspaper)
+                    )
+                }
 
                 Column(
                     modifier = Modifier

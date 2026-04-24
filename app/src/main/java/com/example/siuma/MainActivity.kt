@@ -38,13 +38,18 @@ class MainActivity : ComponentActivity() {
                             is Route.Login -> LoginScreen()
                             is Route.SSOLogin -> SSOLoginScreen()
                             is Route.GoogleLogin -> GoogleLoginScreen()
-                            is Route.Main -> MainScreen()
+                            is Route.Main -> MainScreen(isDosen = false)
+                            is Route.MainDosen -> MainScreen(isDosen = true)
                             is Route.Jadwal -> JadwalScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.KRS -> KRSScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.KHS -> KHSScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Kelas -> KelasScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Mahasiswa -> MahasiswaScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Penelitian -> PenelitianScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.Presensi -> PresensiScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.Pembayaran -> PembayaranScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.Detail -> DetailScreen(title = route.title, onBack = { backStack.removeLastOrNull() })
+                            else -> DetailScreen(title = "Fitur", onBack = { backStack.removeLastOrNull() })
                         }
                     }
                 }
@@ -154,7 +159,7 @@ fun SSOLoginScreen() {
         OutlinedTextField(
             value = nim,
             onValueChange = { nim = it },
-            label = { Text("NIM / Email") },
+            label = { Text("NIM / NIP / Email") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -169,7 +174,20 @@ fun SSOLoginScreen() {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Masuk")
+            Text("Masuk Sebagai Mahasiswa")
+        }
+        //button untuk login sebagai dosen
+        Button(
+            onClick = {
+                if (nim == "Dosen123") {
+                    backStack.clear()
+                    backStack.add(Route.MainDosen)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Masuk Sebagai Dosen")
         }
         TextButton(onClick = { backStack.removeLastOrNull() }) {
             Text("Batal")
@@ -208,6 +226,8 @@ fun GoogleLoginScreen() {
         
         Button(
             onClick = {
+                //mungkin tambah parameter untuk membedakan jenis email dari dosen/mahasiswa untuk melakukan login
+                //cont: student.uns.ac.id untuk mahasiswa, staff.uns.ac.id untuk dosen
                 if (email.isNotBlank()) {
                     backStack.clear()
                     backStack.add(Route.Main)
