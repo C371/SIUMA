@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
                             is Route.SSOLogin -> SSOLoginScreen()
                             is Route.GoogleLogin -> GoogleLoginScreen()
                             is Route.Main -> MainScreen()
+                            //is Route.MainDosen -> MainScreenDosen()
                             is Route.Jadwal -> JadwalScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.KRS -> KRSScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.KHS -> KHSScreen(onBack = { backStack.removeLastOrNull() })
@@ -154,7 +155,7 @@ fun SSOLoginScreen() {
         OutlinedTextField(
             value = nim,
             onValueChange = { nim = it },
-            label = { Text("NIM / Email") },
+            label = { Text("NIM / NIP / Email") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -169,7 +170,20 @@ fun SSOLoginScreen() {
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("Masuk")
+            Text("Masuk Sebagai Mahasiswa")
+        }
+        //button untuk login sebagai dosen
+        Button(
+            onClick = {
+                if (nim.equals("Dosen123")) {
+                    backStack.clear()
+                    backStack.add(Route.Main)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Masuk Sebagai Dosen")
         }
         TextButton(onClick = { backStack.removeLastOrNull() }) {
             Text("Batal")
@@ -208,6 +222,8 @@ fun GoogleLoginScreen() {
         
         Button(
             onClick = {
+                //mungkin tambah parameter untuk membedakan jenis email dari dosen/mahasiswa untuk melakukan login
+                //cont: student.uns.ac.id untuk mahasiswa, staff.uns.ac.id untuk dosen
                 if (email.isNotBlank()) {
                     backStack.clear()
                     backStack.add(Route.Main)

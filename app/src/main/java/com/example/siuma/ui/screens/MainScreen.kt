@@ -55,7 +55,7 @@ fun MainScreen() {
                     selected = currentTab == "Jelajahi",
                     onClick = { currentTab = "Jelajahi" },
                     icon = { Icon(Icons.Default.Search, contentDescription = "Jelajahi") },
-                    label = { Text("Jelajahi") }
+                    label = { Text("Umpan") }
                 )
                 NavigationBarItem(
                     selected = currentTab == "Profil",
@@ -204,6 +204,7 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
             }
 
             // Profile Card
+            // ubah profile card, agar jika dosen yang login akan menampilkan hasil yang berbeda
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -226,7 +227,9 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
                         Text("John Doe", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        //untuk nama mungkin bisa menggunakan dari listOf dosen
                         Text("NIM: (Placeholder)", color = Color(0xFFFFC107), fontSize = 13.sp)
+                        //Text("NIP: (PLaceholder)", color = Color.White, fontSize = 12.sp) ubah NIM menjadi NIP apabila dosen yang melakukan login
                         Text("Program Studi (Placeholder)", color = Color.White, fontSize = 12.sp)
                         Text("Fakultas (Placeholder)", color = Color.White, fontSize = 11.sp)
                         Text("Status: Aktif", color = Color.Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)
@@ -245,14 +248,17 @@ fun BerandaScreen(onLogout: () -> Unit, onNavigate: (String) -> Unit) {
             ) {
                 val menuItems = listOf(
                     MenuItem("Jadwal", Icons.Default.DateRange),
-                    MenuItem("KRS", Icons.AutoMirrored.Filled.Assignment),
-                    MenuItem("KHS", Icons.Default.Description),
+                    MenuItem("KRS", Icons.AutoMirrored.Filled.Assignment), //dosen ganti kelas
+                    MenuItem("KHS", Icons.Default.Description),//dosen ganti mahasiswa
                     MenuItem("Presensi", Icons.AutoMirrored.Filled.FactCheck),
                     MenuItem("Pembayaran", Icons.Default.Payments),
                     MenuItem("Perpustakaan", Icons.AutoMirrored.Filled.LibraryBooks),
                     MenuItem("SIAKAD", Icons.Default.School),
                     MenuItem("Prestasi", Icons.Default.EmojiEvents),
                     MenuItem("Berita", Icons.Default.Newspaper)
+                    //MenuItem( "Kelas", Icons.Default.School),
+                    //MenuItem( "Mahasiswa", Icons.Default.)
+
                 )
 
                 Column(

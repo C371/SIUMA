@@ -5,6 +5,8 @@ sealed class Route(val id: String) {
     object SSOLogin : Route("sso_login")
     object GoogleLogin : Route("google_login")
     object Main : Route("main")
+
+    object MainDosen : Route("main_dosen")
     object Jadwal : Route("jadwal")
     object KRS : Route("krs")
     object KHS : Route("khs")
