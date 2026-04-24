@@ -38,14 +38,18 @@ class MainActivity : ComponentActivity() {
                             is Route.Login -> LoginScreen()
                             is Route.SSOLogin -> SSOLoginScreen()
                             is Route.GoogleLogin -> GoogleLoginScreen()
-                            is Route.Main -> MainScreen()
-                            //is Route.MainDosen -> MainScreenDosen()
+                            is Route.Main -> MainScreen(isDosen = false)
+                            is Route.MainDosen -> MainScreen(isDosen = true)
                             is Route.Jadwal -> JadwalScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.KRS -> KRSScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.KHS -> KHSScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Kelas -> KelasScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Mahasiswa -> MahasiswaScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Penelitian -> PenelitianScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.Presensi -> PresensiScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.Pembayaran -> PembayaranScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.Detail -> DetailScreen(title = route.title, onBack = { backStack.removeLastOrNull() })
+                            else -> DetailScreen(title = "Fitur", onBack = { backStack.removeLastOrNull() })
                         }
                     }
                 }
@@ -175,9 +179,9 @@ fun SSOLoginScreen() {
         //button untuk login sebagai dosen
         Button(
             onClick = {
-                if (nim.equals("Dosen123")) {
+                if (nim == "Dosen123") {
                     backStack.clear()
-                    backStack.add(Route.Main)
+                    backStack.add(Route.MainDosen)
                 }
             },
             modifier = Modifier.fillMaxWidth(),
