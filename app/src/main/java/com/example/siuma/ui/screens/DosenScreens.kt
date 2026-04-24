@@ -32,23 +32,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.io.File
 
-// --- Data Models ---
+// data model
 data class MateriItem(val name: String, val date: String, val size: String, val localPath: String? = null)
 data class Course(val id: String, val title: String, val subtitle: String, val room: String)
 
-// --- ViewModel for Persistence ---
+// VIEWMODEL BIAR GK HILANG
 class DosenViewModel : ViewModel() {
-    // Map course ID to its list of materials
+    // list upload baru pakai id random
     var courseMaterials = mutableStateMapOf<String, List<MateriItem>>()
 
     init {
-        // Initial data
+        // Initial data untuk simulasi saja
         val initialMateri = listOf(
             MateriItem("Modul 1 - Pengenalan Android.pdf", "12 Okt 2023", "1.2 MB"),
             MateriItem("Modul 2 - Compose UI.pdf", "19 Okt 2023", "2.5 MB"),
             MateriItem("Tugas 1 - Layouting.pdf", "20 Okt 2023", "800 KB")
         )
-        // Populate for some courses
         courseMaterials["1"] = initialMateri
         courseMaterials["2"] = listOf(MateriItem("Silabus AI.pdf", "01 Sep 2023", "500 KB"))
     }
@@ -316,7 +315,7 @@ private fun saveFileLocally(context: Context, uri: Uri): String? {
 
 private fun openPdf(context: Context, materi: MateriItem) {
     if (materi.localPath == null) {
-        // For dummy data, we just show a toast or do nothing since the file doesn't exist on disk
+        // karna file tidak ada, tidak bisa dibuka jadi simulasikan saja
         android.widget.Toast.makeText(context, "Simulasi: Membuka ${materi.name}", android.widget.Toast.LENGTH_SHORT).show()
         return
     }
