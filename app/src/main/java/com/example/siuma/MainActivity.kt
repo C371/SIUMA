@@ -13,11 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.size.Precision
 import com.example.siuma.ui.navigation.LocalBackStack
 import com.example.siuma.ui.navigation.NavDisplay
 import com.example.siuma.ui.navigation.Route
@@ -69,8 +72,12 @@ fun LoginScreen(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.logosimuawelcome),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(R.drawable.logosimuawelcome)
+                .crossfade(true)
+                .precision(Precision.EXACT)
+                .build(),
             contentDescription = "Logo UNS",
             modifier = Modifier.size(150.dp)
         )
@@ -147,8 +154,12 @@ fun SSOLoginScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.logo_uns_only_black_sso),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(R.drawable.logo_uns_only_black_sso)
+                .crossfade(true)
+                .precision(Precision.EXACT)
+                .build(),
             contentDescription = "SSO UNS",
             modifier = Modifier.size(80.dp)
         )
@@ -207,8 +218,12 @@ fun GoogleLoginScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.google_logo),
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(R.drawable.google_logo)
+                .crossfade(true)
+                .precision(Precision.EXACT)
+                .build(),
             contentDescription = "Google",
             modifier = Modifier.size(80.dp)
         )
@@ -260,8 +275,12 @@ fun LoginButton(text: String, iconRes: Int, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Image(
-                painter = painterResource(id = iconRes),
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(iconRes)
+                    .crossfade(true)
+                    .precision(Precision.EXACT)
+                    .build(),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp)
             )
