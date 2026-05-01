@@ -24,11 +24,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.size.Precision
 import com.example.siuma.R
 import com.example.siuma.ui.navigation.LocalBackStack
 import com.example.siuma.ui.navigation.Route
@@ -103,6 +105,28 @@ fun MainScreen(isDosen: Boolean = false) {
 @Composable
 fun BerandaScreen(isDosen: Boolean, onLogout: () -> Unit, onNavigate: (String) -> Unit) {
     val scaffoldState = rememberBottomSheetScaffoldState()
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Konfirmasi Keluar") },
+            text = { Text("Apakah Anda yakin ingin keluar dari Akun?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showLogoutDialog = false
+                    onLogout()
+                }) {
+                    Text("Ya")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Batal")
+                }
+            }
+        )
+    }
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
@@ -201,8 +225,12 @@ fun BerandaScreen(isDosen: Boolean, onLogout: () -> Unit, onNavigate: (String) -
                     .padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.logosimua),
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(R.drawable.logosimua)
+                        .crossfade(true)
+                        .precision(Precision.EXACT)
+                        .build(),
                     contentDescription = "Logo",
                     modifier = Modifier.size(40.dp)
                 )
@@ -212,7 +240,7 @@ fun BerandaScreen(isDosen: Boolean, onLogout: () -> Unit, onNavigate: (String) -
                     Text("Universitas Sebelas Maret", color = Color(0xFFFFC107), fontSize = 11.sp)
                 }
                 Button(
-                    onClick = onLogout,
+                    onClick = { showLogoutDialog = true },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
                     shape = RoundedCornerShape(20.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
@@ -233,8 +261,12 @@ fun BerandaScreen(isDosen: Boolean, onLogout: () -> Unit, onNavigate: (String) -
                     modifier = Modifier.padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.pasfoto),
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(R.drawable.pasfoto)
+                            .crossfade(true)
+                            .precision(Precision.EXACT)
+                            .build(),
                         contentDescription = "Foto Profil",
                         modifier = Modifier
                             .size(80.dp)
