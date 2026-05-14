@@ -1,5 +1,6 @@
 package com.example.siuma
 
+import androidx.activity.compose.BackHandler
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,6 +37,9 @@ class MainActivity : ComponentActivity() {
             
             CompositionLocalProvider(LocalBackStack provides backStack) {
                 SIUMATheme {
+                    BackHandler(enabled = backStack.size > 1) {
+                        backStack.removeLastOrNull()
+                    }
                     NavDisplay(backStack = backStack) { route ->
                         when (route) {
                             is Route.Login -> LoginScreen()

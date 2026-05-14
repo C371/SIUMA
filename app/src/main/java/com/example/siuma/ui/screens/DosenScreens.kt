@@ -35,11 +35,27 @@ import java.io.File
 // data model
 data class MateriItem(val name: String, val date: String, val size: String, val localPath: String? = null)
 data class Course(val id: String, val title: String, val subtitle: String, val room: String)
+data class Mahasiswa(val nim: String, val name: String, val prodi: String, val angkatan: String)
+data class Penelitian(val id: String, val judul: String, val status: String, val tahun: String)
 
 // VIEWMODEL BIAR GK HILANG
 class DosenViewModel : ViewModel() {
     // list upload baru pakai id random
     var courseMaterials = mutableStateMapOf<String, List<MateriItem>>()
+
+    val daftarMahasiswa = listOf(
+        Mahasiswa("210101001", "Ahmad Fauzi", "Informatika", "2021"),
+        Mahasiswa("210101002", "Budi Santoso", "Informatika", "2021"),
+        Mahasiswa("210101003", "Citra Lestari", "Informatika", "2021"),
+        Mahasiswa("210101004", "Dewi Sartika", "Informatika", "2021"),
+        Mahasiswa("210101005", "Eko Prasetyo", "Informatika", "2021")
+    )
+
+    val daftarPenelitian = listOf(
+        Penelitian("1", "Pengembangan Sistem Pakar Diagnosa Penyakit Padi", "Selesai", "2022"),
+        Penelitian("2", "Implementasi IoT pada Smart Agriculture", "Berjalan", "2023"),
+        Penelitian("3", "Analisis Sentimen Data Twitter untuk Opini Publik", "Selesai", "2023")
+    )
 
     init {
         // Initial data untuk simulasi saja
@@ -263,15 +279,103 @@ fun MateriCard(materi: MateriItem, onClick: () -> Unit) {
 
 @Composable
 fun MahasiswaScreen(onBack: () -> Unit) {
+    val viewModel: DosenViewModel = viewModel()
     BaseDosenScreen(title = "Daftar Mahasiswa", onBack = onBack) {
-        Text("Daftar mahasiswa bimbingan atau mahasiswa di kelas.")
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
+        ) {
+            items(viewModel.daftarMahasiswa) { mhs ->
+                MahasiswaCard(mhs)
+            }
+        }
+    }
+}
+
+@Composable
+fun MahasiswaCard(mhs: Mahasiswa) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color(0xFFE8EAF6), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(mhs.name.take(1), fontWeight = FontWeight.Bold, color = Color(0xFF3F51B5))
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(mhs.name, fontWeight = FontWeight.Bold, color = Color(0xFF0B194C))
+                Text("NIM: ${mhs.nim} • ${mhs.prodi} ${mhs.angkatan}", fontSize = 12.sp, color = Color.Gray)
+            }
+        }
     }
 }
 
 @Composable
 fun PenelitianScreen(onBack: () -> Unit) {
+    val viewModel: DosenViewModel = viewModel()
     BaseDosenScreen(title = "Penelitian", onBack = onBack) {
-        Text("Halaman Penelitian dan Pengabdian.")
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 24.dp)
+        ) {
+            items(viewModel.daftarPenelitian) { pen ->
+                PenelitianCard(pen)
+            }
+        }
+    }
+}
+
+@Composable
+fun PenelitianCard(pen: Penelitian) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = pen.tahun,
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    fontWeight = FontWeight.Medium
+                )
+                Surface(
+                    color = if (pen.status == "Selesai") Color(0xFFE8F5E9) else Color(0xFFFFF3E0),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text(
+                        text = pen.status,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        fontSize = 10.sp,
+                        color = if (pen.status == "Selesai") Color(0xFF2E7D32) else Color(0xFFEF6C00),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = pen.judul,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0B194C),
+                fontSize = 15.sp
+            )
+        }
     }
 }
 
