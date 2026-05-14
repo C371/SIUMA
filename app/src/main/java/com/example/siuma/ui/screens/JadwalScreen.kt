@@ -1,7 +1,13 @@
 package com.example.siuma.ui.screens
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,46 +23,39 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import java.io.InputStream
 
 // --- Data Model ---
 data class JadwalItem(
     val id: Int,
     val title: String,
-    val info: String, // NIM/NIP - Dosen
+    val info: String, // NIM/NIP - Dosen atau Kelas
     val room: String,
     val day: String,
     val time: String,
-    val isPresensiDone: Boolean = false
+    val isPresensiDone: Boolean = false,
+    val isDosenRole: Boolean = false
 )
 
-// --- ViewModel ---
-class JadwalViewModel : ViewModel() {
-    val daftarJadwal = mutableStateListOf(
-        JadwalItem(1, "Pengembangan Aplikasi Bergerak", "12013220427 - Arif Rohmadi S.Kom., M.Cs", "B4.11", "Senin", "08:00 - 10:30", true),
-        JadwalItem(2, "Kecerdasan Buatan", "12013220428 - Akhmad Syaifuddin S.Si., M.Cs.", "B4.04", "Selasa", "13:00 - 15:30", false),
-        JadwalItem(3, "Basis Data", "12013220429 - Bambang Widoyono S.T., M.T.I.", "Lab Komputer 1", "Rabu", "10:00 - 12:30", true),
-        JadwalItem(4, "Sistem Operasi", "12013220430 - Herdito Ibnu Dewangkoro M.Kom.", "B4.05", "Kamis", "07:30 - 10:00", true),
-        JadwalItem(5, "Teori Bahasa & Automata", "12013220431 - HERI PRASETYO S.Kom, M.Sc.Eng.", "B4.11", "Jumat", "13:00 - 14:40", true)
-    )
-
-    fun markPresensiDone(id: Int) {
-        val index = daftarJadwal.indexOfFirst { it.id == id }
-        if (index != -1) {
-            daftarJadwal[index] = daftarJadwal[index].copy(isPresensiDone = true)
-        }
-    }
-}
+// --- ViewModel dipindahkan ke AcademicViewModel di StudentViewModels.kt
 
 @Composable
-fun JadwalScreen(onBack: () -> Unit) {
-    val viewModel: JadwalViewModel = viewModel()
+fun JadwalScreen(isDosen: Boolean = false, onBack: () -> Unit) {
+    val academicViewModel: AcademicViewModel = viewModel()
+    
+    val schedules = if (isDosen) academicViewModel.daftarJadwalDosen else academicViewModel.daftarJadwalMahasiswa
+    
     var selectedJadwal by remember { mutableStateOf<JadwalItem?>(null) }
     var presensiTarget by remember { mutableStateOf<JadwalItem?>(null) }
 
@@ -69,15 +68,27 @@ fun JadwalScreen(onBack: () -> Unit) {
     }
     
     if (presensiTarget != null) {
-        PresensiConfirmationScreen(
-            item = presensiTarget!!,
-            onBack = { presensiTarget = null },
-            onConfirm = {
-                viewModel.markPresensiDone(presensiTarget!!.id)
-                presensiTarget = null
-                selectedJadwal = null // Kembali ke list setelah presensi
-            }
-        )
+        if (isDosen) {
+            DosenPresensiScreen(
+                item = presensiTarget!!,
+                onBack = { presensiTarget = null },
+                onConfirm = { materi ->
+                    academicViewModel.markPresensiDone(presensiTarget!!.id, true, materi)
+                    presensiTarget = null
+                    selectedJadwal = null
+                }
+            )
+        } else {
+            PresensiConfirmationScreen(
+                item = presensiTarget!!,
+                onBack = { presensiTarget = null },
+                onConfirm = {
+                    academicViewModel.markPresensiDone(presensiTarget!!.id)
+                    presensiTarget = null
+                    selectedJadwal = null 
+                }
+            )
+        }
     } else if (selectedJadwal == null) {
         Column(
             modifier = Modifier
@@ -96,7 +107,7 @@ fun JadwalScreen(onBack: () -> Unit) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
                 }
                 Text(
-                    text = "Jadwal Perkuliahan",
+                    text = if (isDosen) "Jadwal Mengajar" else "Jadwal Perkuliahan",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0B194C),
@@ -111,7 +122,7 @@ fun JadwalScreen(onBack: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(bottom = 24.dp)
             ) {
-                items(viewModel.daftarJadwal) { item ->
+                items(schedules) { item ->
                     JadwalCard(item) {
                         if (!item.isPresensiDone) {
                             presensiTarget = item
@@ -312,6 +323,20 @@ fun JadwalDetailScreen(item: JadwalItem, onBack: () -> Unit, onPresensiClick: ()
     }
 }
 
+@Composable
+fun DetailInfoRow(label: String, value: String) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text(text = label, fontSize = 12.sp, color = Color.Gray)
+        Text(
+            text = value,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.Black
+        )
+        HorizontalDivider(modifier = Modifier.padding(top = 8.dp), color = Color(0xFFF5F5F5))
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PresensiConfirmationScreen(item: JadwalItem, onBack: () -> Unit, onConfirm: () -> Unit) {
@@ -462,12 +487,158 @@ fun PresensiStep(number: String, text: String) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailInfoRow(label: String, value: String) {
-    Column(modifier = Modifier.padding(vertical = 10.dp)) {
-        Text(text = label, fontSize = 13.sp, color = Color.Gray)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(text = value, fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.Black)
-        HorizontalDivider(modifier = Modifier.padding(top = 8.dp), color = Color(0xFFF5F5F5))
+fun DosenPresensiScreen(item: JadwalItem, onBack: () -> Unit, onConfirm: (String) -> Unit) {
+    var capturedImage by remember { mutableStateOf<Bitmap?>(null) }
+    var materiText by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    
+    val photoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val inputStream: InputStream? = context.contentResolver.openInputStream(it)
+            capturedImage = BitmapFactory.decodeStream(inputStream)
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Presensi Mengajar", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White,
+                    titleContentColor = Color(0xFF0B194C)
+                )
+            )
+        },
+        bottomBar = {
+            Button(
+                onClick = { onConfirm(materiText) },
+                enabled = capturedImage != null && materiText.isNotBlank(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .navigationBarsPadding(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B194C))
+            ) {
+                Text("Simpan dan Lakukan Presensi")
+            }
+        },
+        containerColor = Color.White
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(24.dp)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = item.title,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0B194C)
+            )
+            Text(text = item.info, fontSize = 14.sp, color = Color.Gray)
+            
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "Materi Perkuliahan",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.Black
+            )
+            OutlinedTextField(
+                value = materiText,
+                onValueChange = { materiText = it },
+                placeholder = { Text("Contoh: Pengenalan Kotlin & Compose") },
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                "Unggah Bukti Perkuliahan",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = Color.Black
+            )
+            Text(
+                "Silakan unggah foto saat kegiatan belajar mengajar berlangsung sebagai bukti kehadiran.",
+                fontSize = 13.sp,
+                color = Color.Gray
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFF5F5F5))
+                    .clickable { photoLauncher.launch("image/*") },
+                contentAlignment = Alignment.Center
+            ) {
+                if (capturedImage != null) {
+                    Image(
+                        bitmap = capturedImage!!.asImageBitmap(),
+                        contentDescription = "Bukti Foto",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            Icons.Default.AddAPhoto,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Tekan untuk Unggah Foto", color = Color.Gray)
+                    }
+                }
+            }
+            
+            if (capturedImage != null) {
+                TextButton(
+                    onClick = { capturedImage = null },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Hapus dan Foto Ulang", color = Color.Red)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8EAF6)),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFF3F51B5))
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        "Pastikan foto terlihat jelas dan mencakup suasana kelas atau materi yang diajarkan.",
+                        fontSize = 12.sp,
+                        color = Color(0xFF3F51B5)
+                    )
+                }
+            }
+        }
     }
 }
