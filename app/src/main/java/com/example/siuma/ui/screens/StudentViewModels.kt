@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 
 data class KRSItem(val code: String, val name: String, val sks: Int, val dosen: String, var isSelected: Boolean = false)
 
-// KHSItem removed to avoid conflict with KHSScreen.kt
-
 class KRSViewModel : ViewModel() {
     val availableCourses = listOf(
         KRSItem("IF101", "Pemrograman Dasar", 3, "Dr. Eng. Irwan Prasetyo"),

@@ -36,7 +36,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.io.InputStream
 
-// --- Data Model ---
+// Data Model
 data class JadwalItem(
     val id: Int,
     val title: String,
@@ -48,7 +48,7 @@ data class JadwalItem(
     val isDosenRole: Boolean = false
 )
 
-// --- ViewModel dipindahkan ke AcademicViewModel di StudentViewModels.kt
+//ViewModel dipindahk ke AcademicViewModel di StudentViewModels.kt
 
 @Composable
 fun JadwalScreen(isDosen: Boolean = false, onBack: () -> Unit) {

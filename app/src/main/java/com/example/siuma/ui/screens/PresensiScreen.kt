@@ -48,7 +48,7 @@ fun PresensiScreen(isDosen: Boolean = false, onBack: () -> Unit) {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Presence Stats Graph Simulation
+        // Presensi Stats Graph Simulation
         PresensiStatsSection(stats)
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -149,7 +149,7 @@ fun PresensiStatsSection(stats: Map<String, Int>) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Simple Horizontal Bar Graph
+                // Simple Horizontal Graph
                 Column(modifier = Modifier.weight(1f)) {
                     StatBar(label = "Hadir", count = hadir, total = total, color = Color(0xFF4CAF50))
                     StatBar(label = "Izin", count = izin, total = total, color = Color(0xFFFF9800))

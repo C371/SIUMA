@@ -70,7 +70,7 @@ fun SIAKADScreen(onBack: () -> Unit) {
                     modifier = Modifier.padding(vertical = 12.dp)
                 )
                 Button(
-                    onClick = { /* Open WebView or Browser */ },
+                    onClick = { /* Open WebView ato Browser */ },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B194C))
                 ) {
