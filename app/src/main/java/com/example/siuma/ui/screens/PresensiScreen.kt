@@ -36,7 +36,7 @@ fun PresensiScreen(isDosen: Boolean = false, onBack: () -> Unit) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Presensi Mahasiswa",
+            text = if (isDosen) "Presensi Dosen" else "Presensi Mahasiswa",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0B194C)
