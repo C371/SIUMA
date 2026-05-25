@@ -6,6 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.siuma.ui.AuthViewModel
 import com.example.siuma.ui.navigation.LocalBackStack
 import com.example.siuma.ui.navigation.NavDisplay
 import com.example.siuma.ui.navigation.Route
@@ -17,20 +20,51 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val authViewModel: AuthViewModel = viewModel()
+            val session by authViewModel.session.observeAsState()
+            
             val backStack = remember { mutableStateListOf<Route>(Route.Login) }
             
             CompositionLocalProvider(LocalBackStack provides backStack) {
                 SIUMATheme {
+                    // Logic untuk reaktif routing berdasarkan session
+                    val currentSession = session
+                    if (currentSession != null) {
+                        if (!currentSession.isLoggedIn) {
+                            // Jika tidak login, paksa ke Login screen
+                            if (backStack.firstOrNull() !is Route.Login && 
+                                backStack.firstOrNull() !is Route.SSOLogin && 
+                                backStack.firstOrNull() !is Route.GoogleLogin) {
+                                backStack.clear()
+                                backStack.add(Route.Login)
+                            }
+                        } else {
+                            // Jika login, pastikan di Main screen sesuai peran
+                            if (backStack.firstOrNull() !is Route.Main && backStack.firstOrNull() !is Route.MainDosen) {
+                                backStack.clear()
+                                val startRoute = if (currentSession.isDosen) Route.MainDosen else Route.Main
+                                backStack.add(startRoute)
+                            }
+                        }
+                    }
+
                     BackHandler(enabled = backStack.size > 1) {
                         backStack.removeLastOrNull()
                     }
+
                     NavDisplay(backStack = backStack) { route ->
                         when (route) {
-                            is Route.Login -> LoginScreen()
-                            is Route.SSOLogin -> SSOLoginScreen()
-                            is Route.GoogleLogin -> GoogleLoginScreen()
-                            is Route.Main -> MainScreen(isDosen = false)
-                            is Route.MainDosen -> MainScreen(isDosen = true)
+                            is Route.Login -> LoginScreen(onLoginSuccess = { isDosen, id, name ->
+                                authViewModel.login(isDosen, id, name)
+                            })
+                            is Route.SSOLogin -> SSOLoginScreen(onLoginSuccess = { isDosen, id, name ->
+                                authViewModel.login(isDosen, id, name)
+                            })
+                            is Route.GoogleLogin -> GoogleLoginScreen(onLoginSuccess = { isDosen, id, name ->
+                                authViewModel.login(isDosen, id, name)
+                            })
+                            is Route.Main -> MainScreen(session = currentSession, onLogout = { authViewModel.logout() })
+                            is Route.MainDosen -> MainScreen(session = currentSession, onLogout = { authViewModel.logout() })
                             is Route.Jadwal -> JadwalScreen(isDosen = route.isDosen, onBack = { backStack.removeLastOrNull() })
                             is Route.KRS -> KRSScreen(onBack = { backStack.removeLastOrNull() })
                             is Route.KHS -> KHSScreen(onBack = { backStack.removeLastOrNull() })

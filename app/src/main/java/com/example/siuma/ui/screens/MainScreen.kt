@@ -8,11 +8,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.siuma.data.local.UserSession
 import com.example.siuma.ui.navigation.LocalBackStack
 import com.example.siuma.ui.navigation.Route
 
 @Composable
-fun MainScreen(isDosen: Boolean = false) {
+fun MainScreen(
+    session: UserSession?,
+    onLogout: () -> Unit
+) {
+    val isDosen = session?.isDosen ?: false
     val backStack = LocalBackStack.current
     var currentTab by remember { mutableStateOf("Beranda") }
 
@@ -47,10 +52,9 @@ fun MainScreen(isDosen: Boolean = false) {
             when (currentTab) {
                 "Beranda" -> BerandaScreen(
                     isDosen = isDosen,
-                    onLogout = { 
-                        backStack.clear()
-                        backStack.add(Route.Login)
-                    }, 
+                    userName = session?.name ?: "User",
+                    userId = session?.userId ?: "",
+                    onLogout = onLogout, 
                     onNavigate = { screenTitle ->
                         val route = when(screenTitle) {
                             "Jadwal" -> Route.Jadwal(isDosen)
@@ -71,7 +75,11 @@ fun MainScreen(isDosen: Boolean = false) {
                     }
                 )
                 "Jelajahi" -> JelajahiScreen()
-                "Profil" -> ProfilScreen(isDosen = isDosen)
+                "Profil" -> ProfilScreen(
+                    isDosen = isDosen,
+                    userName = session?.name ?: "User",
+                    userId = session?.userId ?: ""
+                )
             }
         }
     }

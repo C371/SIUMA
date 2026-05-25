@@ -21,7 +21,10 @@ import com.example.siuma.ui.navigation.LocalBackStack
 import com.example.siuma.ui.navigation.Route
 
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(
+    onLoginSuccess: (Boolean, String, String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val backStack = LocalBackStack.current
     
     Column(
@@ -102,7 +105,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SSOLoginScreen() {
+fun SSOLoginScreen(onLoginSuccess: (Boolean, String, String) -> Unit) {
     val backStack = LocalBackStack.current
     var nim by remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -139,11 +142,11 @@ fun SSOLoginScreen() {
         Button(
             onClick = {
                 if (nim.endsWith("@student.uns.ac.id")) {
-                    backStack.clear()
-                    backStack.add(Route.Main)
+                    val id = nim.substringBefore("@")
+                    onLoginSuccess(false, id, "Mahasiswa SIUMA")
                 } else if (nim.endsWith("@staff.uns.ac.id") || nim == "Dosen123") {
-                    backStack.clear()
-                    backStack.add(Route.MainDosen)
+                    val id = if(nim == "Dosen123") "19850101" else nim.substringBefore("@")
+                    onLoginSuccess(true, id, "Dosen SIUMA")
                 } else {
                     android.widget.Toast.makeText(context, "Gunakan email @student.uns.ac.id atau @staff.uns.ac.id", android.widget.Toast.LENGTH_SHORT).show()
                 }
@@ -160,7 +163,7 @@ fun SSOLoginScreen() {
 }
 
 @Composable
-fun GoogleLoginScreen() {
+fun GoogleLoginScreen(onLoginSuccess: (Boolean, String, String) -> Unit) {
     val backStack = LocalBackStack.current
     var email by remember { mutableStateOf("") }
     
@@ -195,8 +198,7 @@ fun GoogleLoginScreen() {
         Button(
             onClick = {
                 if (email.isNotBlank()) {
-                    backStack.clear()
-                    backStack.add(Route.Main)
+                    onLoginSuccess(false, email, "User Google")
                 }
             },
             modifier = Modifier.fillMaxWidth(),
