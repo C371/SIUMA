@@ -209,7 +209,7 @@ fun BerandaScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
                         Text(userName, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text("${if (isDosen) "NIP" else "NIM"}: $userId", color = Color(0xFFFFC107), fontSize = 13.sp)
+                        Text("${if (isDosen) "Nama" else "Nama Mahasiswa"}: $userId", color = Color(0xFFFFC107), fontSize = 13.sp)
                         Text("Program Studi Informatika", color = Color.White, fontSize = 12.sp)
                         Text("Fakultas Teknologi Informasi dan Data", color = Color.White, fontSize = 11.sp)
                         Text("Status: Aktif", color = Color.Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)

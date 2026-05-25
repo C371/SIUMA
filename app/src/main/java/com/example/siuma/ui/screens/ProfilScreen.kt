@@ -71,12 +71,12 @@ fun ProfilScreen(isDosen: Boolean, userName: String, userId: String) {
             ProfileInfoCard(
                 title = "Informasi Pribadi",
                 items = if (isDosen) listOf(
-                    "NIP" to userId,
+                    "Nama" to userId,
                     "Email" to "$userId@staff.uns.ac.id",
                     "Jabatan" to "Lektor Kepala",
                     "Keahlian" to "Kecerdasan Buatan"
                 ) else listOf(
-                    "NIM" to userId,
+                    "Nama" to userId,
                     "Email" to "$userId@student.uns.ac.id",
                     "Semester" to "5 (Gasal)",
                     "Dosen PA" to "Arif Rohmadi S.Kom., M.Cs"
