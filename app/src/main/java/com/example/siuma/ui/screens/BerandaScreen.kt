@@ -31,7 +31,13 @@ import com.example.siuma.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BerandaScreen(isDosen: Boolean, onLogout: () -> Unit, onNavigate: (String) -> Unit) {
+fun BerandaScreen(
+    isDosen: Boolean,
+    userName: String,
+    userId: String,
+    onLogout: () -> Unit,
+    onNavigate: (String) -> Unit
+) {
     val scaffoldState = rememberBottomSheetScaffoldState()
     var showLogoutDialog by remember { mutableStateOf(false) }
 
@@ -202,9 +208,9 @@ fun BerandaScreen(isDosen: Boolean, onLogout: () -> Unit, onNavigate: (String) -
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
-                        Text(if (isDosen) "John SIMUA Ph.D" else "John Doe", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        Text(if (isDosen) "NIP: (Placeholder)" else "NIM: (Placeholder)", color = Color(0xFFFFC107), fontSize = 13.sp)
-                        Text("Program Studi (Placeholder)", color = Color.White, fontSize = 12.sp)
+                        Text(userName, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text("${if (isDosen) "NIP" else "NIM"}: $userId", color = Color(0xFFFFC107), fontSize = 13.sp)
+                        Text("Program Studi Informatika", color = Color.White, fontSize = 12.sp)
                         Text("Fakultas Teknologi Informasi dan Data", color = Color.White, fontSize = 11.sp)
                         Text("Status: Aktif", color = Color.Green, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }

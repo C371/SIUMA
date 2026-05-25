@@ -24,7 +24,7 @@ import coil.request.ImageRequest
 import com.example.siuma.R
 
 @Composable
-fun ProfilScreen(isDosen: Boolean) {
+fun ProfilScreen(isDosen: Boolean, userName: String, userId: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -53,7 +53,7 @@ fun ProfilScreen(isDosen: Boolean) {
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    if (isDosen) "John SIMUA Ph.D" else "John Doe",
+                    userName,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -71,13 +71,13 @@ fun ProfilScreen(isDosen: Boolean) {
             ProfileInfoCard(
                 title = "Informasi Pribadi",
                 items = if (isDosen) listOf(
-                    "NIP" to "198501012010121001",
-                    "Email" to "john.simua@staff.uns.ac.id",
+                    "NIP" to userId,
+                    "Email" to "$userId@staff.uns.ac.id",
                     "Jabatan" to "Lektor Kepala",
                     "Keahlian" to "Kecerdasan Buatan"
                 ) else listOf(
-                    "NIM" to "M0521001",
-                    "Email" to "john.doe@student.uns.ac.id",
+                    "NIM" to userId,
+                    "Email" to "$userId@student.uns.ac.id",
                     "Semester" to "5 (Gasal)",
                     "Dosen PA" to "Arif Rohmadi S.Kom., M.Cs"
                 )
