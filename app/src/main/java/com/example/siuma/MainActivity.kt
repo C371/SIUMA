@@ -7,20 +7,22 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.siuma.ui.AuthViewModel
 import com.example.siuma.ui.navigation.LocalBackStack
 import com.example.siuma.ui.navigation.NavDisplay
 import com.example.siuma.ui.navigation.Route
 import com.example.siuma.ui.screens.*
 import com.example.siuma.ui.theme.SIUMATheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val authViewModel: AuthViewModel = viewModel()
+            val authViewModel: AuthViewModel = hiltViewModel()
             val session by authViewModel.session.observeAsState()
             
             val backStack = remember { mutableStateListOf<Route>(Route.Login) }

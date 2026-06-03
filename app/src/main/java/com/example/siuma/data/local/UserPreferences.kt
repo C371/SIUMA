@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
+import javax.inject.Inject
+import javax.inject.Singleton
+
 // Ekstensi untuk membuat instance DataStore
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_session")
 
@@ -23,7 +26,8 @@ data class UserSession(
     val name: String
 )
 
-class UserPreferences(private val context: Context) {
+@Singleton
+class UserPreferences @Inject constructor(private val dataStore: DataStore<Preferences>) {
 
     companion object {
         private val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
@@ -33,7 +37,7 @@ class UserPreferences(private val context: Context) {
     }
 
     // Mengambil data sesi secara real-time sebagai Flow
-    val userSessionFlow: Flow<UserSession> = context.dataStore.data
+    val userSessionFlow: Flow<UserSession> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -52,7 +56,7 @@ class UserPreferences(private val context: Context) {
 
     // Fungsi untuk menyimpan data saat login berhasil
     suspend fun saveSession(isDosen: Boolean, userId: String, name: String) {
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[IS_LOGGED_IN] = true
             preferences[IS_DOSEN] = isDosen
             preferences[USER_ID] = userId
@@ -62,7 +66,7 @@ class UserPreferences(private val context: Context) {
 
     // Fungsi untuk menghapus data saat logout
     suspend fun clearSession() {
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences.clear()
         }
     }
