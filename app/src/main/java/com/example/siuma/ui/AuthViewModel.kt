@@ -1,16 +1,19 @@
 package com.example.siuma.ui
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.siuma.data.local.UserPreferences
 import com.example.siuma.data.local.UserSession
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AuthViewModel(application: Application) : AndroidViewModel(application) {
-    private val userPreferences = UserPreferences(application)
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val userPreferences: UserPreferences
+) : ViewModel() {
 
     // Ekspos flow DataStore sebagai LiveData agar mudah diobservasi di UI
     val session: LiveData<UserSession> = userPreferences.userSessionFlow.asLiveData()

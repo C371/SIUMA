@@ -73,7 +73,7 @@ fun ProfilScreen(isDosen: Boolean, userName: String, userId: String) {
                 items = if (isDosen) listOf(
                     "Nama" to userId,
                     "Email" to "$userId@staff.uns.ac.id",
-                    "Jabatan" to "Lektor Kepala",
+                    "Jabatan" to "Dosen",
                     "Keahlian" to "Kecerdasan Buatan"
                 ) else listOf(
                     "Nama" to userId,
