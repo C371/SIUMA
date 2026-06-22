@@ -1,8 +1,13 @@
 package com.example.siuma.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -10,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -17,233 +26,144 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Precision
 import com.example.siuma.R
-import com.example.siuma.ui.navigation.LocalBackStack
-import com.example.siuma.ui.navigation.Route
+import com.example.siuma.ui.AuthViewModel
 
+/**
+ * Layar login email + kata sandi (F-AUTH-01). Memanggil POST /api/login lewat
+ * AuthViewModel; navigasi setelah sukses digerakkan oleh perubahan sesi DataStore.
+ */
 @Composable
 fun LoginScreen(
-    onLoginSuccess: (Boolean, String, String) -> Unit,
+    state: AuthViewModel.LoginUiState,
+    onLogin: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val backStack = LocalBackStack.current
-    
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+
+    val isLoading = state is AuthViewModel.LoginUiState.Loading
+    val errorMessage = (state as? AuthViewModel.LoginUiState.Error)?.message
+
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Spacer(modifier = Modifier.height(32.dp))
+
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(R.drawable.logosimuawelcome)
                 .crossfade(true)
                 .precision(Precision.EXACT)
                 .build(),
-            contentDescription = "Logo UNS",
-            modifier = Modifier.size(150.dp)
+            contentDescription = "Logo SIMUA",
+            modifier = Modifier.size(130.dp)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
             text = "SIMUA",
-            fontSize = 58.sp,
+            fontSize = 48.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.Black
+            color = Color(0xFF0B194C)
         )
-
         Text(
-            text = "SISTEM INFORMASI MAHASISWA URUSAN AKADEMIS\nUNIVERSITAS SEBELAS MARET",
-            fontSize = 12.sp,
-            textAlign = TextAlign.Center,
+            text = "Sistem Informasi & E-Learning",
+            fontSize = 13.sp,
             color = Color.Gray,
-            lineHeight = 18.sp,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(64.dp))
+        Spacer(modifier = Modifier.height(40.dp))
 
-        Text(
-            text = "Choose your sign in method",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.Gray
-        )
-        Text(
-            text = "Select one of the buttons below to sign in",
-            fontSize = 12.sp,
-            color = Color.LightGray
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        LoginButton(
-            text = "SSO UNS",
-            iconRes = R.drawable.logo_uns_only_black_sso,
-            onClick = { backStack.add(Route.SSOLogin) }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LoginButton(
-            text = "Google",
-            iconRes = R.drawable.google_logo,
-            onClick = { backStack.add(Route.GoogleLogin) }
-        )
-
-        Spacer(modifier = Modifier.height(48.dp))
-
-        Text(
-            text = "Dengan login dan menggunakan aplikasi, Anda menyetujui kebijakan privasi SIMUA",
-            fontSize = 11.sp,
-            textAlign = TextAlign.Center,
-            color = Color.Gray,
-            modifier = Modifier.padding(horizontal = 40.dp)
-        )
-    }
-}
-
-@Composable
-fun SSOLoginScreen(onLoginSuccess: (Boolean, String, String) -> Unit) {
-    val backStack = LocalBackStack.current
-    var nim by remember { mutableStateOf("") }
-    val context = LocalContext.current
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(R.drawable.logo_uns_only_black_sso)
-                .crossfade(true)
-                .precision(Precision.EXACT)
-                .build(),
-            contentDescription = "SSO UNS",
-            modifier = Modifier.size(80.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Login SSO UNS", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(32.dp))
-        
-        OutlinedTextField(
-            value = nim,
-            onValueChange = { nim = it },
-            label = { Text("Email UNS (@student / @staff)") },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("contoh: 12345@student.uns.ac.id") }
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        
-        Button(
-            onClick = {
-                if (nim.endsWith("@student.uns.ac.id")) {
-                    val id = nim.substringBefore("@")
-                    onLoginSuccess(false, id, "Mahasiswa SIUMA")
-                } else if (nim.endsWith("@staff.uns.ac.id") || nim == "Dosen123") {
-                    val id = if(nim == "Dosen123") "19850101" else nim.substringBefore("@")
-                    onLoginSuccess(true, id, "Dosen SIUMA")
-                } else {
-                    android.widget.Toast.makeText(context, "Gunakan email @student.uns.ac.id atau @staff.uns.ac.id", android.widget.Toast.LENGTH_SHORT).show()
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Masuk ke SIUMA")
-        }
-        TextButton(onClick = { backStack.removeLastOrNull() }) {
-            Text("Batal")
-        }
-    }
-}
-
-@Composable
-fun GoogleLoginScreen(onLoginSuccess: (Boolean, String, String) -> Unit) {
-    val backStack = LocalBackStack.current
-    var email by remember { mutableStateOf("") }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(R.drawable.google_logo)
-                .crossfade(true)
-                .precision(Precision.EXACT)
-                .build(),
-            contentDescription = "Google",
-            modifier = Modifier.size(80.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Login dengan Google", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.height(32.dp))
-        
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth()
+            singleLine = true,
+            isError = errorMessage != null,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next
+            ),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Button(
-            onClick = {
-                if (email.isNotBlank()) {
-                    onLoginSuccess(false, email, "User Google")
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Kata Sandi") },
+            singleLine = true,
+            isError = errorMessage != null,
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Sembunyikan kata sandi" else "Tampilkan kata sandi"
+                    )
                 }
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
-        ) {
-            Text("Lanjutkan")
-        }
-        TextButton(onClick = { backStack.removeLastOrNull() }) {
-            Text("Batal")
-        }
-    }
-}
+        )
 
-@Composable
-fun LoginButton(text: String, iconRes: Int, onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray),
-        color = Color.White
-    ) {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(iconRes)
-                    .crossfade(true)
-                    .precision(Precision.EXACT)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
+        if (errorMessage != null) {
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = text,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = Color.Black
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 13.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = { onLogin(email, password) },
+            enabled = !isLoading,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0B194C))
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(22.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text("Masuk", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Text(
+            text = "Dengan masuk, Anda menyetujui kebijakan privasi SIMUA.",
+            fontSize = 11.sp,
+            textAlign = TextAlign.Center,
+            color = Color.Gray,
+            modifier = Modifier.padding(horizontal = 24.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
