@@ -30,14 +30,8 @@ fun MainScreen(
                 NavigationBarItem(
                     selected = currentTab == "Beranda",
                     onClick = { currentTab = "Beranda" },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Halaman Awal") },
-                    label = { Text("Halaman Awal") }
-                )
-                NavigationBarItem(
-                    selected = currentTab == "Jelajahi",
-                    onClick = { currentTab = "Jelajahi" },
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Jelajahi") },
-                    label = { Text("Umpan") }
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Beranda") },
+                    label = { Text("Beranda") }
                 )
                 NavigationBarItem(
                     selected = currentTab == "Profil",
@@ -51,34 +45,16 @@ fun MainScreen(
         Box(modifier = Modifier.padding(innerPadding)) {
             when (currentTab) {
                 "Beranda" -> BerandaScreen(
-                    isDosen = isDosen,
-                    userName = session?.name ?: "User",
-                    userId = session?.userId ?: "",
-                    onLogout = onLogout, 
-                    onNavigate = { screenTitle ->
-                        val route = when(screenTitle) {
-                            "Jadwal" -> Route.Jadwal(isDosen)
-                            "KRS" -> Route.KRS
-                            "KHS" -> Route.KHS
-                            "Kelas" -> Route.Kelas
-                            "Mahasiswa" -> Route.Mahasiswa
-                            "Presensi" -> Route.Presensi(isDosen)
-                            "Pembayaran" -> Route.Pembayaran
-                            "Penelitian" -> Route.Penelitian
-                            "Perpustakaan" -> Route.Perpustakaan
-                            "SIAKAD" -> Route.SIAKAD
-                            "Prestasi" -> Route.Prestasi
-                            "Berita" -> Route.Berita
-                            else -> Route.Detail(screenTitle)
-                        }
-                        backStack.add(route)
-                    }
+                    session = session,
+                    onOpenKelas = { backStack.add(Route.Kelas) },
+                    onOpenAkademik = { backStack.add(Route.Akademik) },
+                    onOpenRekap = { backStack.add(Route.Rekap(isDosen)) },
+                    onOpenKelasDetail = { id -> backStack.add(Route.KelasDetail(id, isDosen)) },
+                    onOpenTugas = { id -> backStack.add(Route.TugasDetail(id, isDosen)) }
                 )
-                "Jelajahi" -> JelajahiScreen()
                 "Profil" -> ProfilScreen(
-                    isDosen = isDosen,
-                    userName = session?.name ?: "User",
-                    userId = session?.userId ?: ""
+                    session = session,
+                    onLogout = onLogout
                 )
             }
         }
