@@ -6,15 +6,15 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo_simualuar"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo_simualuar"
         android:supportsRtl="true"
         android:theme="@style/Theme.SIUMA">
         <activity
             android:name=".setelahditekan"
             android:exported="false"
-            android:label="@string/activity_setelahditekan"
+ 
             android:theme="@style/Theme.SIUMA.NoActionBar" />
         <activity
             android:name=".MainActivity"
