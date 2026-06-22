@@ -31,6 +31,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Aktifkan java.time (OffsetDateTime/LocalDate) di minSdk 24 (API < 26).
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -57,6 +59,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.coil.compose)
+
+    // Desugaring pustaka inti (java.time pada API < 26)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 
     // Networking — Retrofit + OkHttp
     implementation(libs.retrofit)
