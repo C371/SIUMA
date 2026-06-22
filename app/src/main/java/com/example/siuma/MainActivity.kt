@@ -24,24 +24,24 @@ class MainActivity : ComponentActivity() {
         setContent {
             val authViewModel: AuthViewModel = hiltViewModel()
             val session by authViewModel.session.observeAsState()
-            
+            val loginState by authViewModel.loginState.collectAsState()
+
             val backStack = remember { mutableStateListOf<Route>(Route.Login) }
-            
+
             CompositionLocalProvider(LocalBackStack provides backStack) {
                 SIUMATheme {
-                    // Logic untuk reaktif routing berdasarkan session
+                    // Routing reaktif berdasarkan sesi (token tersimpan / tidak).
                     val currentSession = session
                     if (currentSession != null) {
                         if (!currentSession.isLoggedIn) {
-                            // Jika tidak login, paksa ke Login screen
-                            if (backStack.firstOrNull() !is Route.Login && 
-                                backStack.firstOrNull() !is Route.SSOLogin && 
-                                backStack.firstOrNull() !is Route.GoogleLogin) {
+                            // Belum/tidak login → paksa ke Login.
+                            if (backStack.firstOrNull() !is Route.Login) {
                                 backStack.clear()
                                 backStack.add(Route.Login)
+                                authViewModel.resetLoginState()
                             }
                         } else {
-                            // Jika login, pastikan di Main screen sesuai peran
+                            // Sudah login → pastikan berada di Main sesuai peran.
                             if (backStack.firstOrNull() !is Route.Main && backStack.firstOrNull() !is Route.MainDosen) {
                                 backStack.clear()
                                 val startRoute = if (currentSession.isDosen) Route.MainDosen else Route.Main
@@ -56,28 +56,76 @@ class MainActivity : ComponentActivity() {
 
                     NavDisplay(backStack = backStack) { route ->
                         when (route) {
-                            is Route.Login -> LoginScreen(onLoginSuccess = { isDosen, id, name ->
-                                authViewModel.login(isDosen, id, name)
-                            })
-                            is Route.SSOLogin -> SSOLoginScreen(onLoginSuccess = { isDosen, id, name ->
-                                authViewModel.login(isDosen, id, name)
-                            })
-                            is Route.GoogleLogin -> GoogleLoginScreen(onLoginSuccess = { isDosen, id, name ->
-                                authViewModel.login(isDosen, id, name)
-                            })
+                            is Route.Login -> LoginScreen(
+                                state = loginState,
+                                onLogin = { email, password -> authViewModel.login(email, password) }
+                            )
                             is Route.Main -> MainScreen(session = currentSession, onLogout = { authViewModel.logout() })
                             is Route.MainDosen -> MainScreen(session = currentSession, onLogout = { authViewModel.logout() })
-                            is Route.Jadwal -> JadwalScreen(isDosen = route.isDosen, onBack = { backStack.removeLastOrNull() })
-                            is Route.KRS -> KRSScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.KHS -> KHSScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.Kelas -> KelasScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.Mahasiswa -> MahasiswaScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.Penelitian -> PenelitianScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.Presensi -> PresensiScreen(isDosen = route.isDosen, onBack = { backStack.removeLastOrNull() })
-                            is Route.Pembayaran -> PembayaranScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.SIAKAD -> SIAKADScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.Perpustakaan -> LibraryScreen(onBack = { backStack.removeLastOrNull() })
-                            is Route.Berita -> NewsScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Akademik -> AkademikScreen(onBack = { backStack.removeLastOrNull() })
+                            is Route.Rekap -> RekapPresensiScreen(isDosen = route.isDosen, onBack = { backStack.removeLastOrNull() })
+                            is Route.Kelas -> KelasScreen(
+                                isDosen = currentSession?.isDosen ?: false,
+                                onBack = { backStack.removeLastOrNull() },
+                                onOpenKelas = { id -> backStack.add(Route.KelasDetail(id, currentSession?.isDosen ?: false)) }
+                            )
+                            is Route.KelasDetail -> KelasDetailScreen(
+                                kelasId = route.kelasId,
+                                isDosen = route.isDosen,
+                                onBack = { backStack.removeLastOrNull() },
+                                onOpenMahasiswa = { id -> backStack.add(Route.Mahasiswa(id)) },
+                                onOpenTugas = { id -> backStack.add(Route.TugasList(id, route.isDosen)) },
+                                onOpenKuis = { id -> backStack.add(Route.KuisList(id, route.isDosen)) },
+                                onOpenPresensi = { id -> backStack.add(Route.Presensi(id, route.isDosen)) },
+                                onUploadMateri = { id -> backStack.add(Route.MateriUpload(id)) }
+                            )
+                            is Route.MateriUpload -> MateriUploadScreen(
+                                kelasId = route.kelasId,
+                                onBack = { backStack.removeLastOrNull() },
+                                onUploaded = { backStack.removeLastOrNull() }
+                            )
+                            is Route.TugasList -> TugasListScreen(
+                                kelasId = route.kelasId,
+                                isDosen = route.isDosen,
+                                onBack = { backStack.removeLastOrNull() },
+                                onOpenTugas = { id -> backStack.add(Route.TugasDetail(id, route.isDosen)) },
+                                onCreateTugas = { id -> backStack.add(Route.TugasCreate(id)) }
+                            )
+                            is Route.TugasDetail -> TugasDetailScreen(
+                                tugasId = route.tugasId,
+                                isDosen = route.isDosen,
+                                onBack = { backStack.removeLastOrNull() }
+                            )
+                            is Route.TugasCreate -> TugasCreateScreen(
+                                kelasId = route.kelasId,
+                                onBack = { backStack.removeLastOrNull() },
+                                onCreated = { backStack.removeLastOrNull() }
+                            )
+                            is Route.KuisList -> KuisListScreen(
+                                kelasId = route.kelasId,
+                                isDosen = route.isDosen,
+                                onBack = { backStack.removeLastOrNull() },
+                                onOpenKuis = { id -> backStack.add(Route.KuisDetail(id, route.isDosen)) },
+                                onCreateKuis = { id -> backStack.add(Route.KuisCreate(id)) }
+                            )
+                            is Route.KuisDetail -> KuisDetailScreen(
+                                kuisId = route.kuisId,
+                                isDosen = route.isDosen,
+                                onBack = { backStack.removeLastOrNull() },
+                                onAddSoal = { id -> backStack.add(Route.SoalCreate(id)) }
+                            )
+                            is Route.KuisCreate -> KuisCreateScreen(
+                                kelasId = route.kelasId,
+                                onBack = { backStack.removeLastOrNull() },
+                                onCreated = { backStack.removeLastOrNull() }
+                            )
+                            is Route.SoalCreate -> SoalCreateScreen(
+                                kuisId = route.kuisId,
+                                onBack = { backStack.removeLastOrNull() },
+                                onAdded = { backStack.removeLastOrNull() }
+                            )
+                            is Route.Mahasiswa -> MahasiswaScreen(kelasId = route.kelasId, onBack = { backStack.removeLastOrNull() })
+                            is Route.Presensi -> PresensiScreen(kelasId = route.kelasId, isDosen = route.isDosen, onBack = { backStack.removeLastOrNull() })
                             is Route.Detail -> DetailScreen(title = route.title, onBack = { backStack.removeLastOrNull() })
                             else -> DetailScreen(title = "Fitur", onBack = { backStack.removeLastOrNull() })
                         }
