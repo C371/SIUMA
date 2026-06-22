@@ -7,7 +7,7 @@ data class KrsItemDto(
     val nama: String,
     val sks: Int,
     val dosen: String?,
-    val semester: Int?
+    val semester: String?
 )
 
 data class KhsItemDto(

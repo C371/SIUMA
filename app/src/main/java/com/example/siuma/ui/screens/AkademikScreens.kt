@@ -104,7 +104,7 @@ private fun KrsCard(item: KrsItemDto) {
             Column(Modifier.weight(1f)) {
                 Text(item.nama, fontWeight = FontWeight.Bold, color = SimuaNavy)
                 Text(
-                    listOfNotNull(item.kode, item.dosen, item.semester?.let { "Smt $it" }).joinToString(" • "),
+                    listOfNotNull(item.kode, item.dosen, item.semester).joinToString(" • "),
                     fontSize = 12.sp, color = Color.Gray
                 )
             }

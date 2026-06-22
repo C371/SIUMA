@@ -344,7 +344,7 @@ private fun MahasiswaCard(mhs: MahasiswaDto) {
                 val detail = listOfNotNull(
                     mhs.nim?.let { "NIM: $it" },
                     mhs.prodi,
-                    mhs.semester?.let { "Smt $it" }
+                    mhs.semester
                 ).joinToString(" • ")
                 if (detail.isNotBlank()) Text(detail, fontSize = 12.sp, color = Color.Gray)
             }

@@ -53,5 +53,5 @@ data class MahasiswaDto(
     val nama: String,
     val nim: String?,
     val prodi: String?,
-    val semester: Int?
+    val semester: String?
 )
