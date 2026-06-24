@@ -150,14 +150,3 @@ app/src/main/java/com/example/siuma/
     │                 #   Kuis, Presensi, Akademik, Profil, dll.)
     └── theme/        # Tema Material 3
 ```
-
----
-
-## Catatan Pengumpulan
-
-- **Repo aplikasi (ini):** https://github.com/C371/SIUMA
-- **Repo backend:** https://github.com/Watarufa/Simua-web
-- Login **wajib backend berjalan**. APK memakai base URL emulator (`10.0.2.2`), sehingga
-  untuk mencoba login diperlukan backend lokal aktif + emulator (lihat
-  [Menjalankan Aplikasi](#menjalankan-aplikasi)). Tanpa backend, layar login tidak dapat
-  memuat data.
